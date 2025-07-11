@@ -12,30 +12,33 @@ plt.rcParams['svg.fonttype'] = 'none'
 plt.rcParams['font.family'] = 'DejaVu Sans'
 plt.rcParams['figure.dpi'] = 500
 
-workdir = 'projects/rrg-wainberg/karbabi/fibromyalgia_cell_types'
+workdir = 'projects/rrg-wainberg/karbabi/fibromyalgia-cell-types'
+input_dir = f'{workdir}/input/gsmap'
+output_dir = f'{workdir}/output/gsmap'
+figures_dir = f'{workdir}/figures'
 
 #region prep data ##############################################################
 
-if not os.path.exists(f'{workdir}/gsMap_resource'):
+if not os.path.exists(f'{input_dir}/gsMap_resource'):
+    os.makedirs(input_dir, exist_ok=True)
     run(f'wget https://yanglab.westlake.edu.cn/data/gsMap/gsMap_resource.tar.gz '
-        f'-P {workdir}')
-    run(f'tar -xvzf {workdir}/gsMap_resource.tar.gz -C {workdir}')
-    run(f'rm {workdir}/gsMap_resource.tar.gz')
+        f'-P {input_dir}')
+    run(f'tar -xvzf {input_dir}/gsMap_resource.tar.gz -C {input_dir}')
+    run(f'rm {input_dir}/gsMap_resource.tar.gz')
 
-if not os.path.exists(f'{workdir}/gsMap_example_data'):
+if not os.path.exists(f'{input_dir}/gsMap_example_data'):
+    os.makedirs(input_dir, exist_ok=True)
     run(f'wget https://yanglab.westlake.edu.cn/data/gsMap/gsMap_example_data.tar.gz '
-        f'-P {workdir}')
-    run(f'tar -xvzf {workdir}/gsMap_example_data.tar.gz -C {workdir}')
-    run(f'rm {workdir}/gsMap_example_data.tar.gz')
+        f'-P {input_dir}')
+    run(f'tar -xvzf {input_dir}/gsMap_example_data.tar.gz -C {input_dir}')
+    run(f'rm {input_dir}/gsMap_example_data.tar.gz')
 
-if not os.path.exists(f'{workdir}/out'):
-    os.makedirs(f'{workdir}/out')
-if not os.path.exists(f'{workdir}/figures'):
-    os.makedirs(f'{workdir}/figures')
+os.makedirs(output_dir, exist_ok=True)
+os.makedirs(figures_dir, exist_ok=True)
 
-raw_gwas_file = f'{workdir}/gsMap_example_data/GWAS/' \
+raw_gwas_file = f'{input_dir}/gsMap_example_data/GWAS/' \
     'fibromyalgia_all_updated_rsID_EUR.meta.gz'
-formatted_gwas_file = f'{workdir}/gsMap_example_data/GWAS/' \
+formatted_gwas_file = f'{input_dir}/gsMap_example_data/GWAS/' \
     'fibromyalgia_all_updated_rsID_EUR.sumstats.gz'
 
 if not os.path.exists(formatted_gwas_file):
@@ -63,11 +66,11 @@ if not os.path.exists(formatted_gwas_file):
 
 run(f'''
     gsmap quick_mode \
-    --workdir '{workdir}/out' \
-    --homolog_file '{workdir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
+    --workdir '{output_dir}' \
+    --homolog_file '{input_dir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
     --sample_name 'E16.5_E1S1.MOSTA' \
-    --gsMap_resource_dir '{workdir}/gsMap_resource' \
-    --hdf5_path '{workdir}/gsMap_example_data/ST/E16.5_E1S1.MOSTA.h5ad' \
+    --gsMap_resource_dir '{input_dir}/gsMap_resource' \
+    --hdf5_path '{input_dir}/gsMap_example_data/ST/E16.5_E1S1.MOSTA.h5ad' \
     --annotation 'annotation' \
     --data_layer 'count' \
     --sumstats_file '{formatted_gwas_file}' \
@@ -106,11 +109,11 @@ sample_name = 'E16.5_E1S1.MOSTA'
 trait_name = 'Fibromyalgia'
 
 gsmap_plot_file = (
-    f'{workdir}/out/{sample_name}/report/{trait_name}/gsMap_plot/'
+    f'{output_dir}/{sample_name}/report/{trait_name}/gsMap_plot/'
     f'{sample_name}_{trait_name}_gsMap_plot.csv'
 )
 cauchy_results_file = (
-    f'{workdir}/out/{sample_name}/cauchy_combination/'
+    f'{output_dir}/{sample_name}/cauchy_combination/'
     f'{sample_name}_{trait_name}.Cauchy.csv.gz'
 )
 
@@ -175,9 +178,9 @@ if os.path.exists(gsmap_plot_file) and os.path.exists(cauchy_results_file):
     ax3.set_xlabel('-log10(p-value)')
     ax3.set_ylabel('')
 
-    path_svg = (f'{workdir}/figures/'
+    path_svg = (f'{figures_dir}/'
                 f'{sample_name}_{trait_name}_spatial_combined.svg')
-    path_png = (f'{workdir}/figures/'
+    path_png = (f'{figures_dir}/'
                 f'{sample_name}_{trait_name}_spatial_combined.png')
     plt.savefig(path_svg, bbox_inches='tight', pad_inches=0.1)
     plt.savefig(path_png, bbox_inches='tight', pad_inches=0.1)
@@ -189,11 +192,11 @@ if os.path.exists(gsmap_plot_file) and os.path.exists(cauchy_results_file):
 
 run(f'''
     gsmap quick_mode \
-    --workdir '{workdir}/out' \
-    --homolog_file '{workdir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
+    --workdir '{output_dir}' \
+    --homolog_file '{input_dir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
     --sample_name 'Zhuang-ABCA-1-raw' \
-    --gsMap_resource_dir '{workdir}/gsMap_resource' \
-    --hdf5_path '{workdir}/gsMap_example_data/ST/Zhuang-ABCA-1-raw.h5ad' \
+    --gsMap_resource_dir '{input_dir}/gsMap_resource' \
+    --hdf5_path '{input_dir}/gsMap_example_data/ST/Zhuang-ABCA-1-raw.h5ad' \
     --annotation 'parcellation_division' \
     --data_layer 'count' \
     --sumstats_file '{formatted_gwas_file}' \
@@ -202,11 +205,11 @@ run(f'''
 
 run(f'''
     gsmap quick_mode \
-    --workdir '{workdir}/out' \
-    --homolog_file '{workdir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
+    --workdir '{output_dir}' \
+    --homolog_file '{input_dir}/gsMap_resource/homologs/mouse_human_homologs.txt' \
     --sample_name 'Zhuang-ABCA-3-raw' \
-    --gsMap_resource_dir '{workdir}/gsMap_resource' \
-    --hdf5_path '{workdir}/gsMap_example_data/ST/Zhuang-ABCA-3-raw.h5ad' \
+    --gsMap_resource_dir '{input_dir}/gsMap_resource' \
+    --hdf5_path '{input_dir}/gsMap_example_data/ST/Zhuang-ABCA-3-raw.h5ad' \
     --annotation 'parcellation_division' \
     --data_layer 'count' \
     --sumstats_file '{formatted_gwas_file}' \
@@ -214,8 +217,8 @@ run(f'''
 ''')
 
 
-adata_1 = sc.read_h5ad(f'{workdir}/gsMap_example_data/ST/Zhuang-ABCA-1-raw.h5ad')
-adata_3 = sc.read_h5ad(f'{workdir}/gsMap_example_data/ST/Zhuang-ABCA-3-raw.h5ad')
+adata_1 = sc.read_h5ad(f'{input_dir}/gsMap_example_data/ST/Zhuang-ABCA-1-raw.h5ad')
+adata_3 = sc.read_h5ad(f'{input_dir}/gsMap_example_data/ST/Zhuang-ABCA-3-raw.h5ad')
 
 adata = sc.concat([adata_1, adata_3])
 
@@ -244,7 +247,7 @@ for i, sample_name in enumerate(['Zhuang-ABCA-1-raw', 'Zhuang-ABCA-3-raw']):
     trait_name = 'Fibromyalgia'
 
     adata_sample = sc.read_h5ad(
-        f'{workdir}/gsMap_example_data/ST/{sample_name}.h5ad'
+        f'{input_dir}/gsMap_example_data/ST/{sample_name}.h5ad'
     )
     spatial_df = pd.DataFrame(
         adata_sample.obsm['spatial'],
@@ -254,7 +257,7 @@ for i, sample_name in enumerate(['Zhuang-ABCA-1-raw', 'Zhuang-ABCA-3-raw']):
     plot_data = adata_sample.obs.join(spatial_df)
 
     gsmap_plot_file = (
-        f'{workdir}/out/{sample_name}/report/{trait_name}/gsMap_plot/'
+        f'{output_dir}/{sample_name}/report/{trait_name}/gsMap_plot/'
         f'{sample_name}_{trait_name}_gsMap_plot.csv'
     )
     logp_df = pl.read_csv(
@@ -263,11 +266,11 @@ for i, sample_name in enumerate(['Zhuang-ABCA-1-raw', 'Zhuang-ABCA-3-raw']):
     plot_data = plot_data.join(logp_df[['logp']])
 
     class_cauchy_file = (
-        f'{workdir}/out/{sample_name}/cauchy_combination/'
+        f'{output_dir}/{sample_name}/cauchy_combination/'
         f'{sample_name}_{trait_name}.Class.Cauchy.csv.gz'
     )
     parc_cauchy_file = (
-        f'{workdir}/out/{sample_name}/cauchy_combination/'
+        f'{output_dir}/{sample_name}/cauchy_combination/'
         f'{sample_name}_{trait_name}.Parcellation.Cauchy.csv.gz'
     )
     class_plot_df = pl.read_csv(class_cauchy_file).sort('p_cauchy')\
@@ -342,8 +345,8 @@ for i, sample_name in enumerate(['Zhuang-ABCA-1-raw', 'Zhuang-ABCA-3-raw']):
     ax5.set_xlabel('')
     ax5.set_ylabel('')
 
-path_svg = f'{workdir}/figures/mouse_brain_{trait_name}_spatial_combined.svg'
-path_png = f'{workdir}/figures/mouse_brain_{trait_name}_spatial_combined.png'
+path_svg = f'{figures_dir}/mouse_brain_{trait_name}_spatial_combined.svg'
+path_png = f'{figures_dir}/mouse_brain_{trait_name}_spatial_combined.png'
 plt.savefig(path_svg, bbox_inches='tight', pad_inches=0.1)
 plt.savefig(path_png, bbox_inches='tight', pad_inches=0.1)
 plt.close(fig)
