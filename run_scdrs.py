@@ -3,6 +3,7 @@ import scdrs
 import pandas as pd
 import pickle as pkl
 import scanpy as sc
+import numpy as np
 import matplotlib.pyplot as plt
 from utils import run
 
@@ -57,6 +58,7 @@ for name, file in files.items():
                 .squeeze().astype(int)
         }, index=adatas[name].obs.index)
 
+        # To trigger n_chunk logic in scdrs.preprocess
         df_cov_dummy = pd.DataFrame(        
             index=adatas[name].obs.index,
             data={'const': 1})
@@ -119,8 +121,9 @@ for name in files.keys():
         adatas[name],
         color='fibro_norm_score',
         color_map="RdBu_r",
-        vmin=-5,
-        vmax=5,
+        s=2,
+        vmin=-8,
+        vmax=8,
     )
     plt.savefig(
         f'{fig_dir}/{name}_umap_norm_score.png', 
@@ -135,3 +138,15 @@ for name in files.keys():
     )
     plt.close()
 
+for name in files.keys():
+    gene_df = scdrs.method.downstream_gene_analysis(
+        adata=adatas[name],
+        df_full_score=dfs_res[name],
+    )
+    gene_df.to_csv(f'{out_dir}/{name}_gene_df.csv')
+
+
+pd.concat(
+    [dfs_stats['All_Non_Neurons'], dfs_stats['All_Neurons']],
+    axis=0
+).to_csv(f'{out_dir}/all_stats.csv')
